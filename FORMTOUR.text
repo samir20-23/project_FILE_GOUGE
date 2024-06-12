@@ -1,0 +1,72 @@
+croad :
+insert in file DataLocation/formTour.php:
+
+<?php
+$servername = "localhost";
+$dbname = "booking";
+$username = "SAMIR";
+$password = "samir123";
+$tbname = "reserve";
+$tbnameBook="book";
+
+
+function filter($data) {
+    return htmlspecialchars(stripslashes(trim($data)));
+}
+
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+   
+    $stmt = $conn->prepare("INSERT INTO $tbname (reserve_name, reserve_email,  reserve_adults, reserve_child5_14, reserve_child2, reserve_depart, reserve_return, reserve_message) VALUES (:name, :email , :adults, :child5_14, :child2, :depart, :return, :message)");
+
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':email', $email); 
+    $stmt->bindParam(':adults', $adults);
+    $stmt->bindParam(':child5_14', $child5_14);
+    $stmt->bindParam(':child2', $child2);
+    $stmt->bindParam(':depart', $depart); 
+    $stmt->bindParam(':message', $message);
+    $stmt->bindParam(':return', $Return);
+
+    $Return = filter($_POST['Return']);
+    $name = filter($_POST['name']);
+    $email = filter($_POST['email']); 
+    $adults = filter($_POST['Adults']);
+    $child5_14 = filter($_POST['Child5_14']);
+    $child2 = filter($_POST['Child2']);
+    $depart = filter($_POST['Depart']); 
+    $message = filter($_POST['message']);
+
+    $stmt->execute();
+
+   
+// 
+ 
+// 
+ 
+// 
+ 
+
+    $tourId =  $fetchtour["tour_id"];
+    $clientId = $fetchreserve["client_id"];
+    $reserveId = $fetchreserve["reserve_id"];
+
+    $bookinsert = $conn->prepare("INSERT INTO $tbnameBook ( client_id, tour_id, reserve_id) VALUES (:bookId, :clientId, :tourId, :reserveId)");
+
+    $bookinsert->bindParam(':clientId', $clientId); 
+    $bookinsert->bindParam(':tourId', $tourId);
+    $bookinsert->bindParam(':reserveId', $reserveId);
+
+    $bookinsert->execute();
+
+    // 
+    header('Content-Type: application/json');
+    echo json_encode(["msg" => "success"]);
+} catch(PDOException $e) {
+    echo 'error'.$e->getMessage();
+}
+
+$conn = null;
+?>
